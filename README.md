@@ -46,6 +46,20 @@ settings into the config file, and starts the service.
 
 ## Usage
 
+### One-liner (any internet-connected machine)
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh)
+```
+
+Or with `wget` if `curl` is not available:
+
+```bash
+sudo bash <(wget -qO- https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh)
+```
+
+### Manual download
+
 ```bash
 chmod +x zabbix-agent-install.sh
 sudo ./zabbix-agent-install.sh
