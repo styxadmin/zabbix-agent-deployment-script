@@ -49,14 +49,17 @@ settings into the config file, and starts the service.
 ### One-liner (any internet-connected machine)
 
 ```bash
-sudo bash <(curl -fsSL https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh)
+curl -fsSL https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh | sudo bash
 ```
 
 Or with `wget` if `curl` is not available:
 
 ```bash
-sudo bash <(wget -qO- https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh)
+wget -qO- https://raw.githubusercontent.com/styxadmin/zabbix-agent-deployment-script/main/zabbix-agent-install.sh | sudo bash
 ```
+
+> **Note:** Proxmox VE, LXC containers, and some minimal Linux environments lack `/dev/fd`, so
+> `bash <(curl ...)` process substitution will fail there. The pipe form above works everywhere.
 
 ### Manual download
 
