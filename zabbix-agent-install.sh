@@ -26,9 +26,9 @@ set -Eeuo pipefail
 #  These are offered as the defaults for the interactive prompts, so a
 #  plain Enter keeps them while any value can still be overridden at run time.
 # ======================================================================
-DEFAULT_PASSIVE_SERVER="zabbix.microtechnamibia.com"          # -> Server=
+DEFAULT_PASSIVE_SERVER="zabbix.yourdomain"                    # -> Server=
 DEFAULT_LISTEN_PORT="20050"                                   # -> ListenPort=
-DEFAULT_SERVER_ACTIVE="zabbix.microtechnamibia.com:20051"     # -> ServerActive=
+DEFAULT_SERVER_ACTIVE="zabbix.yourdomain:20051"               # -> ServerActive=
 # Hostname (step 6) is asked interactively; default = this machine's name.
 
 # ----------------------------------------------------------------------
