@@ -9,10 +9,10 @@
 #              OS version, Zabbix component                       (step 1)
 #   PART 2  -> a/b  install Zabbix repository
 #              c    install the Zabbix agent package              (step 2)
-#   CONFIG  -> Server= (passive)                                  (step 3)
-#              ListenPort=                                        (step 4)
-#              ServerActive=                                      (step 5)
-#              Hostname=  (asked interactively)                   (step 6)
+#   CONFIG  -> Server=        (passive, asked interactively)      (step 3)
+#              ListenPort=    (asked interactively)               (step 4)
+#              ServerActive=  (asked interactively)               (step 5)
+#              Hostname=      (asked interactively)               (step 6)
 #   PART 2  -> d    start the agent + enable at boot              (step 7)
 #
 # Config defaults below are taken from the supplied zabbix_agent2.txt example.
@@ -23,11 +23,12 @@ set -Eeuo pipefail
 
 # ======================================================================
 #  ORG DEFAULTS  (steps 3-5).  Edit these for your environment.
-#  These are applied to the agent config automatically (non-interactive).
+#  These are offered as the defaults for the interactive prompts, so a
+#  plain Enter keeps them while any value can still be overridden at run time.
 # ======================================================================
-PASSIVE_SERVER="zabbix.microtechnamibia.com"          # -> Server=
-LISTEN_PORT="20050"                                   # -> ListenPort=
-SERVER_ACTIVE="zabbix.microtechnamibia.com:20051"     # -> ServerActive=
+DEFAULT_PASSIVE_SERVER="zabbix.microtechnamibia.com"          # -> Server=
+DEFAULT_LISTEN_PORT="20050"                                   # -> ListenPort=
+DEFAULT_SERVER_ACTIVE="zabbix.microtechnamibia.com:20051"     # -> ServerActive=
 # Hostname (step 6) is asked interactively; default = this machine's name.
 
 # ----------------------------------------------------------------------
@@ -208,6 +209,23 @@ esac
 REPO_URL=""
 resolve_repo_url
 REL="$(basename "$REPO_URL")"
+
+# ======================================================================
+#  STEPS 3-5 — Server / ListenPort / ServerActive (interactive)
+# ======================================================================
+PASSIVE_SERVER=$(ask "Enter Server (passive checks; Zabbix server/proxy address)" "$DEFAULT_PASSIVE_SERVER")
+[ -n "$PASSIVE_SERVER" ] || die "Server is required."
+
+while :; do
+    LISTEN_PORT=$(ask "Enter ListenPort (agent listen port for passive checks)" "$DEFAULT_LISTEN_PORT")
+    if [[ "$LISTEN_PORT" =~ ^[0-9]+$ ]] && (( LISTEN_PORT >= 1 && LISTEN_PORT <= 65535 )); then
+        break
+    fi
+    warn "ListenPort must be a number between 1 and 65535."
+done
+
+SERVER_ACTIVE=$(ask "Enter ServerActive (active checks; host[:port], comma-separated for multiple)" "$DEFAULT_SERVER_ACTIVE")
+[ -n "$SERVER_ACTIVE" ] || die "ServerActive is required."
 
 # ======================================================================
 #  STEP 6 — Hostname (interactive)
