@@ -14,8 +14,7 @@ settings into the config file, and starts the service.
 - Interactive menu selection for Zabbix version, OS distribution, OS version, and component.
 - Auto-detects the OS version from `/etc/os-release` and offers it as the default.
 - Probes the Zabbix repository to find the correct package URL automatically — handles the differing repo layouts across versions (e.g. `7.2`/`7.4` use a `release/` path, `7.0`/`6.0` do not) instead of hard-coding one shape.
-- Applies your organization's connection settings (`Server`, `ListenPort`, `ServerActive`) from variables at the top of the script.
-- Prompts interactively for the agent `Hostname`.
+- Prompts interactively for the connection settings (`Server`, `ListenPort`, `ServerActive`) and the agent `Hostname`, pre-filled with your organization's defaults from variables at the top of the script — press Enter to accept or type a new value.
 - Idempotent config editing: existing active directives are replaced (never duplicated), and the commented documentation in the config file is preserved.
 - Backs up the original config before making changes.
 - Fails fast with clear messages — a bad version/OS combination or a failed download stops the run before anything is changed.
@@ -26,10 +25,10 @@ settings into the config file, and starts the service.
 |------|--------|
 | 1 | Interactively select **Zabbix version**, **OS distribution**, **OS version**, **component** |
 | 2 | Add the Zabbix **repository** and install the **agent package** |
-| 3 | Set `Server=` (passive server / allowed incoming hosts) |
-| 4 | Set `ListenPort=` |
-| 5 | Set `ServerActive=` (active-check server, with port) |
-| 6 | Set `Hostname=` (asked interactively) |
+| 3 | Set `Server=` (passive server / allowed incoming hosts) — asked interactively |
+| 4 | Set `ListenPort=` — asked interactively |
+| 5 | Set `ServerActive=` (active-check server, with port) — asked interactively |
+| 6 | Set `Hostname=` — asked interactively |
 | 7 | **Start** the agent and **enable** it at boot |
 
 ## Supported platforms
@@ -74,18 +73,20 @@ pressing Enter is fine.
 
 ## Configuration
 
-The connection settings applied to every host are defined near the top of the
-script. Edit them once for your environment:
+`Server`, `ListenPort`, and `ServerActive` are asked interactively at runtime.
+The defaults offered at each prompt are defined near the top of the script —
+edit them once so a plain Enter accepts your organization's values, while any
+value can still be overridden per host at run time:
 
 ```bash
-PASSIVE_SERVER="zabbix.example.com"          # -> Server=
-LISTEN_PORT="20050"                          # -> ListenPort=
-SERVER_ACTIVE="zabbix.example.com:20051"     # -> ServerActive=
+DEFAULT_PASSIVE_SERVER="zabbix.example.com"          # -> Server=
+DEFAULT_LISTEN_PORT="20050"                          # -> ListenPort=
+DEFAULT_SERVER_ACTIVE="zabbix.example.com:20051"     # -> ServerActive=
 ```
 
-The `Hostname` is not set here — it is requested interactively at runtime and
-defaults to the machine's short hostname. It must match the host name
-configured for this host in the Zabbix frontend.
+The `Hostname` is likewise requested interactively and defaults to the
+machine's short hostname. It must match the host name configured for this host
+in the Zabbix frontend.
 
 The component you choose determines the paths used:
 
