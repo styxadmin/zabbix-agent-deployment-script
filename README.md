@@ -80,12 +80,12 @@ value can still be overridden per host at run time:
 
 ```bash
 DEFAULT_PASSIVE_SERVER="zabbix.example.com"          # -> Server=
-DEFAULT_LISTEN_PORT="20050"                          # -> ListenPort=
-DEFAULT_SERVER_ACTIVE="zabbix.example.com:20051"     # -> ServerActive=
+DEFAULT_LISTEN_PORT="10050"                          # -> ListenPort= (Zabbix default)
+DEFAULT_SERVER_ACTIVE="zabbix.example.com:10051"     # -> ServerActive= (10051 = Zabbix server default)
 ```
 
 The `Hostname` is likewise requested interactively and defaults to the
-machine's short hostname. It must match the host name configured for this host
+placeholder `HOSTNAME`. It must match the host name configured for this host
 in the Zabbix frontend.
 
 The component you choose determines the paths used:
@@ -115,18 +115,18 @@ Select [1-4]: 3
   Repo package   : https://repo.zabbix.com/.../zabbix-release_latest_7.0+debian12_all.deb
   Config to apply:
     Server        = zabbix.example.com
-    ListenPort    = 20050
-    ServerActive  = zabbix.example.com:20051
-    Hostname      = TUG-PVE
+    ListenPort    = 10050
+    ServerActive  = zabbix.example.com:10051
+    Hostname      = HOSTNAME
 ====================================================
 Proceed? (yes/no) [yes]:
 ```
 
 ## Notes
 
-- **Firewall:** passive checks reach the agent on `ListenPort` (default `20050`
+- **Firewall:** passive checks reach the agent on `ListenPort` (default `10050`
   in this script). If a firewall is active, allow that port from the Zabbix
-  server, e.g. `ufw allow 20050/tcp` or the `firewalld` equivalent.
+  server, e.g. `ufw allow 10050/tcp` or the `firewalld` equivalent.
 - **Agent 2 plugins:** on some versions the `zabbix-agent2-plugin-*` packages
   do not exist (the functionality is built in). The script attempts to install
   them and only warns if they are unavailable — the core agent still installs.
