@@ -27,8 +27,8 @@ set -Eeuo pipefail
 #  plain Enter keeps them while any value can still be overridden at run time.
 # ======================================================================
 DEFAULT_PASSIVE_SERVER="zabbix.yourdomain"                    # -> Server=
-DEFAULT_LISTEN_PORT="20050"                                   # -> ListenPort=
-DEFAULT_SERVER_ACTIVE="zabbix.yourdomain:20051"               # -> ServerActive=
+DEFAULT_LISTEN_PORT="10050"                                   # -> ListenPort= (Zabbix default; adjustable at the prompt)
+DEFAULT_SERVER_ACTIVE="zabbix.yourdomain:10051"               # -> ServerActive= (10051 is the Zabbix server default; adjustable at the prompt)
 # Hostname (step 6) is asked interactively; default = this machine's name.
 
 # ----------------------------------------------------------------------
@@ -127,13 +127,24 @@ resolve_repo_url() {
 }
 
 # Set a key=value in a Zabbix config file.
-# Deletes every existing ACTIVE (uncommented) line for the key, then appends
-# the desired one. Idempotent, comment documentation is preserved, and the
-# anchored regex means setting "Server" never touches "ServerActive".
+# Edits the value in place: finds the existing line for the key (whether it is
+# commented out with a leading '#' or already active), removes the '#', and
+# writes "key=value" at that same position. Any additional duplicate lines for
+# the key are dropped, so the function stays idempotent. Only when the key is
+# absent entirely is a new line appended. Surrounding comment documentation is
+# preserved, and the anchored '=' means setting "Server" never touches
+# "ServerActive".
 set_config() {
     local key="$1" value="$2" file="$3"
-    sed -i -E "/^[[:space:]]*${key}=/d" "$file"
-    printf '%s=%s\n' "$key" "$value" >> "$file"
+    awk -v key="$key" -v val="$value" '
+        BEGIN { done = 0 }
+        $0 ~ "^[[:space:]]*#?[[:space:]]*" key "=" {
+            if (!done) { print key "=" val; done = 1 }
+            next
+        }
+        { print }
+        END { if (!done) print key "=" val }
+    ' "$file" > "${file}.tmp" && cat "${file}.tmp" > "$file" && rm -f "${file}.tmp"
     ok "Set ${key}=${value}"
 }
 
@@ -230,7 +241,7 @@ SERVER_ACTIVE=$(ask "Enter ServerActive (active checks; host[:port], comma-separ
 # ======================================================================
 #  STEP 6 — Hostname (interactive)
 # ======================================================================
-DEFAULT_HOST="$(hostname -s 2>/dev/null || hostname 2>/dev/null || echo '')"
+DEFAULT_HOST="HOSTNAME"
 HOSTNAME_VAL=$(ask "Enter Zabbix Hostname (must match the host name configured on the Zabbix server)" "$DEFAULT_HOST")
 [ -n "$HOSTNAME_VAL" ] || die "Hostname is required."
 
